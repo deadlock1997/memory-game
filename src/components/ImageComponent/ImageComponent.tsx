@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import { IProps } from "./ImageComponent.types";
 import { useSpring } from "@react-spring/web";
 import { AnimatedBox } from "../Animated/animated";
@@ -11,8 +11,14 @@ const ImageComponent = forwardRef(
     const { transform, opacity } = useSpring({
       opacity: active ? 1 : 0,
       transform: `perspective(600px) rotateX(${active ? 180 : 0}deg)`,
-      config: { duration: 100 },
+      config: { duration: 300 },
     });
+    const { opacity: tickSpring } = useSpring({
+      from: { opacity: 0 },
+      to: { opacity: 1 },
+      config: { duration: 300 },
+    });
+
     return (
       <Button
         key={index}
@@ -27,9 +33,9 @@ const ImageComponent = forwardRef(
         }}
       >
         {complete && (
-          <Box position={"absolute"}>
+          <AnimatedBox position={"absolute"} style={{ opacity: tickSpring }}>
             <CheckIcon color="success" />
-          </Box>
+          </AnimatedBox>
         )}
         {!complete && (
           <>
