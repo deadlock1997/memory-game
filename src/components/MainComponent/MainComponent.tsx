@@ -1,5 +1,9 @@
 import { createRef, useEffect, useMemo, useState } from "react";
-import { generateIndexMatrix } from "./ManiComponent.functions";
+import {
+  generate2dEmptyMatrix,
+  generateIndexMatrix,
+  shuffle,
+} from "./ManiComponent.functions";
 import { LevelMatrix, ScoreArray, ScoreValue } from "./MainComponent.types";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import ImageComponent from "../ImageComponent/ImageComponent";
@@ -13,12 +17,20 @@ const MainComponent = () => {
   );
   const [triggerSuffle, setTriggerSuffle] = useState(0);
   const [inputScore, setInputScore] = useState<ScoreArray>([]);
+  const [randomImageIndies, setRandomImageIndices] = useState<number[]>([]);
   const [pairSet, setPairSet] = useState<number[]>([]);
   const { imageIndicesMatrix, scoreMatrix } = useMemo(() => {
     setElRefs(() =>
-      Array(LevelMatrix[level][0] * LevelMatrix[level][1])
-        .fill(null)
-        .map(() => createRef())
+      generate2dEmptyMatrix(
+        LevelMatrix[level][0] * LevelMatrix[level][1],
+        null
+      ).map(() => createRef())
+    );
+    setRandomImageIndices(
+      shuffle(generate2dEmptyMatrix(15, 0).map((_, i) => i)).slice(
+        0,
+        (LevelMatrix[level][0] * LevelMatrix[level][1]) / 2
+      )
     );
     return generateIndexMatrix(LevelMatrix[level]);
   }, [level]);
@@ -43,7 +55,11 @@ const MainComponent = () => {
       setInputScore(inputTemp);
       setPairSet([]);
       if (inputTemp.every((value) => value === ScoreValue.Done)) {
-        setLevel((prev) => prev + 1);
+        setPairSet([]);
+        const timeOutId = setTimeout(() => {
+          setLevel((prev) => prev + 1);
+          clearTimeout(timeOutId);
+        }, 1000);
       }
     }
   };
@@ -55,15 +71,16 @@ const MainComponent = () => {
     }, 2000);
   }, [pairSet]);
 
-  const handleInput = (index: number, value: boolean) => {
-    console.log("Handle input", index, value);
+  const handleInput = (index: number) => {
     let tempSet: number[] = [...pairSet];
     tempSet.push(index);
-    const [firstIndex, secondIndex] = tempSet;
+    let [firstIndex, secondIndex] = tempSet;
     const inputTemp: ScoreArray = [...inputScore];
     if (firstIndex === secondIndex) {
       inputTemp[firstIndex] = ScoreValue.NotSelected;
       tempSet = [];
+      firstIndex = undefined;
+      secondIndex = undefined;
     }
     if (firstIndex !== undefined && secondIndex === undefined) {
       inputTemp[firstIndex] = ScoreValue.Selected;
@@ -80,14 +97,13 @@ const MainComponent = () => {
     rowIndex: number
   ) => {
     let rowI = Math.floor(rowIndex / LevelMatrix[level][1]);
-    let colI = (rowIndex % LevelMatrix[level][1]);
+    let colI = rowIndex % LevelMatrix[level][1];
     switch (event.key) {
       case "ArrowDown": {
         rowI++;
         rowI = Math.min(rowI, LevelMatrix[level][0] - 1);
         const index = rowI * LevelMatrix[level][1] + colI;
         elRefs?.[index]?.current?.focus();
-        console.log("Navigate", colI, rowI, index);
         break;
       }
       case "ArrowUp": {
@@ -95,7 +111,6 @@ const MainComponent = () => {
         rowI = Math.max(rowI, 0);
         const index = rowI * LevelMatrix[level][1] + colI;
         elRefs?.[index]?.current?.focus();
-        console.log("Navigate", colI, rowI, index);
         break;
       }
       case "ArrowRight": {
@@ -103,7 +118,6 @@ const MainComponent = () => {
         colI = Math.min(LevelMatrix[level][1] - 1, colI);
         const index = rowI * LevelMatrix[level][1] + colI;
         elRefs?.[index]?.current?.focus();
-        console.log("Navigate", colI, rowI, index);
         break;
       }
       case "ArrowLeft": {
@@ -111,14 +125,13 @@ const MainComponent = () => {
         colI = Math.max(0, colI);
         const index = rowI * LevelMatrix[level][1] + colI;
         elRefs?.[index]?.current?.focus();
-        console.log("Navigate", colI, rowI, index);
         break;
       }
       default:
         break;
     }
   };
-  
+
   return (
     <Box
       sx={{
@@ -158,9 +171,13 @@ const MainComponent = () => {
                 }}
                 complete={inputScore[rowIndex] === ScoreValue.Done}
                 active={inputScore[rowIndex] === ScoreValue.Selected}
-                setActive={(value) => handleInput(rowIndex, value)}
+                setActive={() => {
+                  handleInput(rowIndex);
+                }}
               >
-                <ImageGenerator index={imageIndicesMatrix[rowIndex]} />
+                <ImageGenerator
+                  index={randomImageIndies[imageIndicesMatrix[rowIndex]]}
+                />
               </ImageComponent>
             </Box>
           );

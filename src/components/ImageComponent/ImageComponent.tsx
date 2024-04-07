@@ -13,55 +13,47 @@ const ImageComponent = forwardRef(
       transform: `perspective(600px) rotateX(${active ? 180 : 0}deg)`,
       config: { mass: 5, tension: 500, friction: 80 },
     });
-    if (complete) {
-      return (
-        <Box
-          key={index}
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <CheckIcon color="success" />
-        </Box>
-      );
-    }
     return (
       <Button
         key={index}
         ref={ref}
         data-testid={`button-${index}`}
         sx={{ position: "relative", p: 0, width: "100%", height: "100%" }}
-        disabled={active}
         onKeyDown={(e) => {
           keyDown(e);
         }}
         onClick={() => {
-          setActive(!active);
+          if (!complete) setActive();
         }}
       >
-        <AnimatedBox
-          style={{
-            position: "absolute",
-            opacity: opacity.to((o) => 1 - o),
-            transform,
-          }}
-        >
-          <HelpIcon />
-        </AnimatedBox>
-        <AnimatedBox
-          style={{
-            position: "absolute",
-            opacity,
-            transform,
-            rotateX: "180deg",
-          }}
-        >
-          {children}
-        </AnimatedBox>
+        {complete && (
+          <Box position={"absolute"}>
+            <CheckIcon color="success" />
+          </Box>
+        )}
+        {!complete && (
+          <>
+            <AnimatedBox
+              style={{
+                position: "absolute",
+                opacity: opacity.to((o) => 1 - o),
+                transform,
+              }}
+            >
+              <HelpIcon />
+            </AnimatedBox>
+            <AnimatedBox
+              style={{
+                position: "absolute",
+                opacity,
+                transform,
+                rotateX: "180deg",
+              }}
+            >
+              {children}
+            </AnimatedBox>
+          </>
+        )}
       </Button>
     );
   }
