@@ -1,6 +1,8 @@
 export type IProps = {
-    complete: boolean
-    active: boolean;
-    setActive: (active: boolean) => void;
-    children: React.ReactNode;
-}
+  index: number;
+  complete: boolean;
+  active: boolean;
+  setActive: (active: boolean) => void;
+  children: React.ReactNode;
+  keyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
+};

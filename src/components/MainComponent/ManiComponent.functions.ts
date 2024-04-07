@@ -11,7 +11,7 @@ export const generateIndexMatrix = ([row, column]: number[]): {
     matrix.push(i);
   }
   const suffledCards: number[] = shuffle(matrix);
-  const scoreMatrix = generate2dEmptyMatrix(row * column);
+  const scoreMatrix = generate2dEmptyMatrix(row * column, -1);
   return { imageIndicesMatrix: suffledCards, scoreMatrix };
 };
 
@@ -28,6 +28,6 @@ export const shuffle = (array: number[]) => {
   return array;
 };
 
-export const generate2dEmptyMatrix = (num: number): ScoreArray => {
-  return Array(num).fill(-1);
+export const generate2dEmptyMatrix = (num: number, values: number | null): ScoreArray => {
+  return Array(num).fill(values);
 };
