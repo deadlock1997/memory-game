@@ -68,7 +68,7 @@ const MainComponent = () => {
     const id = setTimeout(() => {
       checkThePair(pairSet, inputScore);
       clearTimeout(id);
-    }, 2000);
+    }, 500);
   }, [pairSet]);
 
   const handleInput = (index: number) => {
