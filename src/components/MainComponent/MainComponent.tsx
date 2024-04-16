@@ -5,16 +5,22 @@ import {
   shuffle,
 } from "./ManiComponent.functions";
 import { LevelMatrix, ScoreArray, ScoreValue } from "./MainComponent.types";
-import { Box, Button, Typography, useTheme } from "@mui/material";
+import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
 import ImageComponent from "../ImageComponent/ImageComponent";
 import { ImageGenerator } from "../Icons/Icons";
 
 const MainComponent = () => {
   const theme = useTheme();
   const [level, setLevel] = useState(0);
+  const [best, setBest] = useState(
+    localStorage.getItem(`${level}`)
+      ? Number(localStorage.getItem(`${level}`))
+      : 0
+  );
   const [elRefs, setElRefs] = useState<React.RefObject<HTMLButtonElement>[]>(
     []
   );
+  const [moveCount, setMoveCount] = useState(0);
   const [triggerSuffle, setTriggerSuffle] = useState(0);
   const [inputScore, setInputScore] = useState<ScoreArray>([]);
   const [randomImageIndies, setRandomImageIndices] = useState<number[]>([]);
@@ -32,8 +38,14 @@ const MainComponent = () => {
         (LevelMatrix[level][0] * LevelMatrix[level][1]) / 2
       )
     );
+    setMoveCount(0);
+    setBest(
+      localStorage.getItem(`${level}`)
+        ? Number(localStorage.getItem(`${level}`))
+        : 0
+    );
     return generateIndexMatrix(LevelMatrix[level]);
-  }, [level]);
+  }, [level, triggerSuffle]);
 
   useEffect(() => {
     setInputScore(scoreMatrix);
@@ -56,11 +68,16 @@ const MainComponent = () => {
       setPairSet([]);
       if (inputTemp.every((value) => value === ScoreValue.Done)) {
         setPairSet([]);
+        if (moveCount < best || best === 0) {
+          localStorage.setItem(`${level}`, `${moveCount + 1}`);
+          setBest(moveCount + 1);
+        }
         const timeOutId = setTimeout(() => {
           setLevel((prev) => prev + 1);
           clearTimeout(timeOutId);
         }, 1000);
       }
+      setMoveCount((prev) => prev + 1);
     }
   };
 
@@ -183,46 +200,56 @@ const MainComponent = () => {
           );
         })}
       </Box>
+      <Divider sx={{ width: "100%" }} />
+      <Typography>Moves: {moveCount}</Typography>
+      <Typography>Best: {best || "-"}</Typography>
+      <Divider sx={{ width: "100%" }} />
+      <Box display="flex" gap={0.5} width={"100%"}>
+        <Button
+          fullWidth
+          variant="contained"
+          disabled={level === 0}
+          onClick={() => {
+            setLevel(level - 1);
+          }}
+        >
+          Level &darr;
+        </Button>
+        <Button
+          fullWidth
+          variant="contained"
+          disabled={level === 5}
+          onClick={() => {
+            setLevel(level + 1);
+          }}
+        >
+          Level &uarr;
+        </Button>
+      </Box>
+
+      <Box display="flex" gap={0.5} width={"100%"}>
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={() => {
+            setInputScore(scoreMatrix);
+            setPairSet([]);
+            setTriggerSuffle(triggerSuffle + 1);
+            setMoveCount(0);
+          }}
+        >
+          Shuffle
+        </Button>
+      </Box>
       <Button
         fullWidth
         variant="contained"
-        disabled={level === 5}
         onClick={() => {
-          setLevel(level + 1);
+          localStorage.clear();
+          setBest(0);
         }}
       >
-        Level Up
-      </Button>
-      <Button
-        fullWidth
-        variant="contained"
-        disabled={level === 0}
-        onClick={() => {
-          setLevel(level - 1);
-        }}
-      >
-        Level Down
-      </Button>
-      <Button
-        fullWidth
-        variant="contained"
-        onClick={() => {
-          setInputScore(scoreMatrix);
-          setPairSet([]);
-        }}
-      >
-        Reset
-      </Button>
-      <Button
-        fullWidth
-        variant="contained"
-        onClick={() => {
-          setInputScore(scoreMatrix);
-          setPairSet([]);
-          setTriggerSuffle(triggerSuffle + 1);
-        }}
-      >
-        Shuffle
+        Clear Best
       </Button>
     </Box>
   );
