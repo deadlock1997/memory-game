@@ -35,6 +35,10 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.4.3",
-    "vite": "^5.4.21"
+    "vite": "^5.4.21",
+    "@remix-run/router": "1.23.2"
+  },
+  "overrides": {
+    "@remix-run/router": "1.23.2"
   }
 }
