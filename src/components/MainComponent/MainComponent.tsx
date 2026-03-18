@@ -17,7 +17,7 @@ const MainComponent = () => {
       ? Number(localStorage.getItem(`${level}`))
       : 0
   );
-  const [elRefs, setElRefs] = useState<React.RefObject<HTMLButtonElement>[]>(
+  const [elRefs, setElRefs] = useState<React.RefObject<HTMLButtonElement | null>[]>(
     []
   );
   const [moveCount, setMoveCount] = useState(0);
@@ -30,7 +30,7 @@ const MainComponent = () => {
       generate2dEmptyMatrix(
         LevelMatrix[level][0] * LevelMatrix[level][1],
         null
-      ).map(() => createRef())
+      ).map(() => createRef<HTMLButtonElement>())
     );
     setRandomImageIndices(
       shuffle(generate2dEmptyMatrix(15, 0).map((_, i) => i)).slice(
@@ -45,6 +45,7 @@ const MainComponent = () => {
         : 0
     );
     return generateIndexMatrix(LevelMatrix[level]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level, triggerSuffle]);
 
   useEffect(() => {
@@ -86,6 +87,7 @@ const MainComponent = () => {
       checkThePair(pairSet, inputScore);
       clearTimeout(id);
     }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairSet]);
 
   const handleInput = (index: number) => {

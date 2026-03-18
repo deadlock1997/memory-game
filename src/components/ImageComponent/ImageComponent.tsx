@@ -6,7 +6,7 @@ import HelpIcon from "@mui/icons-material/Help";
 import CheckIcon from "@mui/icons-material/Check";
 import { forwardRef } from "react";
 const ImageComponent = forwardRef(
-  (props: IProps, ref: React.RefObject<HTMLButtonElement>) => {
+  (props: IProps, ref: React.Ref<HTMLButtonElement>) => {
     const { complete, active, setActive, children, index, keyDown } = props;
     const { transform, opacity } = useSpring({
       opacity: active ? 1 : 0,
